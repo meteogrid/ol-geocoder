@@ -22,10 +22,12 @@ import {
 
 const klasses = VARS.cssClasses;
 
+export class NominatimLike {}
+
 /**
  * @class Nominatim
  */
-export class Nominatim {
+export class Nominatim extends NominatimLike {
   /**
    * @constructor
    * @param {Function} base Base class.

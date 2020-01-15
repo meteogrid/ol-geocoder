@@ -2,7 +2,7 @@ import Control from 'ol/control/Control';
 import Style from 'ol/style/Style';
 import Icon from 'ol/style/Icon';
 import { Html } from './html';
-import { Nominatim } from './nominatim';
+import { NominatimLike, Nominatim } from './nominatim';
 import { assert, mergeOptions } from 'helpers/mix';
 import { CONTROL_TYPE, DEFAULT_OPTIONS, FEATURE_SRC } from 'konstants';
 
@@ -19,12 +19,6 @@ export default class Base extends Control {
   constructor(type = CONTROL_TYPE.NOMINATIM, options = {}) {
     if (!(this instanceof Base)) return new Base();
 
-    assert(typeof type === 'string', '@param `type` should be string!');
-    assert(
-      type === CONTROL_TYPE.NOMINATIM || type === CONTROL_TYPE.REVERSE,
-      `@param 'type' should be '${CONTROL_TYPE.NOMINATIM}'
-        or '${CONTROL_TYPE.REVERSE}'!`
-    );
     assert(typeof options === 'object', '@param `options` should be object!');
 
     DEFAULT_OPTIONS.featureStyle = [
@@ -37,12 +31,24 @@ export default class Base extends Control {
     let $nominatim;
     const $html = new Html(this);
 
-    if (type === CONTROL_TYPE.NOMINATIM) {
+    if (type instanceof NominatimLike) {
       this.container = $html.els.container;
-      $nominatim = new Nominatim(this, $html.els);
+      $nominatim = new type(this, $html.els);
       this.layer = $nominatim.layer;
-    } else if (type === CONTROL_TYPE.REVERSE) {
-      // TODO
+    } else {
+      assert(typeof type === 'string', '@param `type` should be string!');
+      assert(
+        type === CONTROL_TYPE.NOMINATIM || type === CONTROL_TYPE.REVERSE,
+        `@param 'type' should be '${CONTROL_TYPE.NOMINATIM}'
+          or '${CONTROL_TYPE.REVERSE}'!`
+      );
+      if (type === CONTROL_TYPE.NOMINATIM) {
+        this.container = $html.els.container;
+        $nominatim = new Nominatim(this, $html.els);
+        this.layer = $nominatim.layer;
+      } else if (type === CONTROL_TYPE.REVERSE) {
+        // TODO
+      }
     }
 
     super({ element: this.container });
